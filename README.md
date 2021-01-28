@@ -1,7 +1,7 @@
 # wikipedia-lang-generator
 Colección de scripts de python para generar las tablas de datos utilizadas en [Módulo:Lang](https://es.wikipedia.org/wiki/Módulo:Lang)
-
-## Nombres
+## Archivos generados
+### Nombres
 Se generan los siguientes listados:
 * `<código ISO639> - <nombre>` Para los activos y los obsoletos
 * `<código ISO639> - <artículo>` Para los activos y los obsoletos
@@ -40,5 +40,7 @@ GROUP BY ?item ?label_es ?label_en ?article_es ?article_en
 ```
 * El [registro de sub-etiquetas del IANA](https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry).
 * Un listado de traducciones al español compilado manualmente.
-## Sistemas de escritura
-## Regiones
+### Sistemas de escritura
+### Regiones
+## Uso
+Para generar el archivo de nombres basta con ejecutar el `run.py`, automáticamente se hace la query a wikidata, se procesan los datos y se generan los archivos.
