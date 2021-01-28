@@ -1,6 +1,6 @@
 
-names/queryNoProcesada.json
-names/queryProcesada.json
-names/queryProcesadaIETF.json
+queryNoProcesada.json
+queryProcesada.json
+queryProcesadaIETF.json
 output/
 query.json
