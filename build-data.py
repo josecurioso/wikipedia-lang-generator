@@ -15,6 +15,10 @@ code_article_dep = {}
 ietf_name = {}
 ietf_article = {}
 
+vetados = [
+    "cel-gaulish"
+]
+
 def load(filename):
     with open(str(Path(__file__).parent / ('./'+filename+'.json')), 'r', encoding='utf-8') as f:
         return json.loads(''.join(f.readlines()))
@@ -28,7 +32,7 @@ def write(filename, contents):
             tmp = f'"{contents[el][0]}"'
             for i in range(len(contents[el])-1):
                 tmp = tmp + f', "{contents[el][i+1]}"'
-            f.write(f'["{el}"] = {{{tmp}}},\n')
+            f.write(f'\t["{el}"] = {{{tmp}}},\n')
 
 def buscarCoincidencia(clave, contenido):
     count = 0
@@ -55,17 +59,17 @@ def getLink(lang, link):
     return urllib.parse.unquote(link.replace("https://"+lang+".wikipedia.org/wiki/", "")).replace("_", " ")
 
 
-def extractName(element):
+def extractName(element, fallback = False):
     if ('esLang_LangName' in list(element.keys()) and element['esLang_LangName'] != ""):
-        return cleanAndCap(element['esLang_LangName'])
+        return cleanAndCapList(element['esLang_LangName'])
     elif ('wdLabel_es' in list(element.keys()) and element['wdLabel_es'] != ""):
-        return cleanAndCap(element['wdLabel_es'])
-    elif ('wdLabel_en' in list(element.keys()) and element['wdLabel_en'] != ""):
-        return cleanAndCap(element['wdLabel_en'])
+        return [cleanAndCap(element['wdLabel_es'])]
+    elif (fallback and 'wdLabel_en' in list(element.keys()) and element['wdLabel_en'] != ""):
+        return [cleanAndCap(element['wdLabel_en'])]
     elif ('esWikiLink' in list(element.keys()) and element['esWikiLink'] != ""):
-        return cleanAndCap(getLink('es', element['esWikiLink']))
-    elif ('enWikiLink' in list(element.keys()) and element['enWikiLink'] != ""):
-        return cleanAndCap(getLink('en', element['enWikiLink']))
+        return [cleanAndCap(getLink('es', element['esWikiLink']))]
+    elif (fallback and 'enWikiLink' in list(element.keys()) and element['enWikiLink'] != ""):
+        return [cleanAndCap(getLink('en', element['enWikiLink']))]
     return "not found"
 
 
@@ -92,11 +96,13 @@ for el in list(engData.keys()):
     if(j != "not found"):
         res = data[j]
 
-        code_name[el] = [extractName(res)]
-        if (code_name[el][0] == "not found"):
-            code_name[el] = cleanAndCapList(res['enLang_LangNames'])
+        name = extractName(res)
+        if (name != "not found"):
+            code_name[el] = name
+        #else: 
+            #code_name[el] = cleanAndCapList(res['enLang_LangNames'])
 
-        tmp = extractArticle(res, code_name[el][0])
+        tmp = extractArticle(res, code_name[el][0] if (el in list(code_name.keys())) else engData[el][0] )
         if(tmp != "not found"):
             code_article[el] = [tmp]
 
@@ -106,11 +112,13 @@ for el in list(engDepData.keys()):
     if(j != "not found"):
         res = data[j]
 
-        code_name_dep[el] = [extractName(res)]
-        if (code_name_dep[el][0] == "not found"):
-            code_name_dep[el] = cleanAndCapList(res['enLang_LangNames'])
+        name = extractName(res)
+        if (name != "not found"):
+            code_name_dep[el] = name
+        #else: 
+            #code_name_dep[el] = cleanAndCapList(res['enLang_LangNames'])
 
-        tmp = extractArticle(res, code_name_dep[el][0])
+        tmp = extractArticle(res, code_name_dep[el][0] if (el in list(code_name_dep.keys())) else engDepData[el][0])
         if(tmp != "not found"):
             code_article_dep[el] = [tmp]
 
@@ -118,9 +126,9 @@ print('     Generando ietf_name + ietf_article...')
 for el in dataIETF:
     code = el["wdCodes"]["IETF"][0].lower()
 
-    name = extractName(el)
-    if(name != "not found"):
-        ietf_name[code] = [name]
+    name = extractName(el, True)
+    if(name != "not found" and not (code in vetados)):
+        ietf_name[code] = name
         tmp = extractArticle(el, ietf_name[code][0])
         if(tmp != "not found"):
             ietf_article[code] = [tmp]
