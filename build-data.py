@@ -1,6 +1,7 @@
 import json
 import urllib.parse
 from pathlib import Path
+from datetime import datetime
 import os
 
 data = {}
@@ -18,21 +19,93 @@ ietf_article = {}
 vetados = [
     "cel-gaulish"
 ]
+         #JSON  LUA
+output = [False, True]
 
 def load(filename):
     with open(str(Path(__file__).parent / ('./'+filename+'.json')), 'r', encoding='utf-8') as f:
         return json.loads(''.join(f.readlines()))
 
-def write(filename, contents):
-    with open(str(Path(__file__).parent / ('./output/json/'+filename+'.json')), 'w', encoding='utf-8') as f:
-        f.write(json.dumps(contents, ensure_ascii=False))
+def writeJSON(filename, contents):
+    if output[0]:
+        with open(str(Path(__file__).parent / ('./output/json/'+filename+'.json')), 'w', encoding='utf-8') as f:
+            f.write(json.dumps(contents, ensure_ascii=False))
 
-    with open(str(Path(__file__).parent / ('./output/lua/'+filename+'.lua')), 'w', encoding='utf-8') as f:
-        for el in list(contents.keys()):
-            tmp = f'"{contents[el][0]}"'
-            for i in range(len(contents[el])-1):
-                tmp = tmp + f', "{contents[el][i+1]}"'
-            f.write(f'\t["{el}"] = {{{tmp}}},\n')
+def writeLUA(filename, contents):
+    if output[1]:
+        with open(str(Path(__file__).parent / ('./output/lua/'+filename+'.lua')), 'w', encoding='utf-8') as f:
+            for el in list(contents.keys()):
+                tmp = f'"{contents[el][0]}"'
+                for i in range(len(contents[el])-1):
+                    tmp = tmp + f', "{contents[el][i+1]}"'
+                f.write(f'\t["{el}"] = {{{tmp}}},\n')
+
+def write(filename, contents):
+    writeJSON(filename, contents)
+    writeLUA(filename, contents)
+
+def generate_iana_languages(contents, contents2):    
+    file = "	-- File-Date: " + str(datetime.today().strftime('%Y-%m-%d')) + "\n"
+    file = file + "local active = {\n"
+
+    for el in list(contents.keys()):
+        tmp = f'"{contents[el][0]}"'
+        for i in range(len(contents[el])-1):
+            tmp = tmp + f', "{contents[el][i+1]}"'
+        file = file + (f'\t["{el}"] = {{{tmp}}},\n')
+    file = file + "}\n"
+    file = file + "local deprecated = {\n"
+
+    for el in list(contents2.keys()):
+        tmp = f'"{contents2[el][0]}"'
+        for i in range(len(contents2[el])-1):
+            tmp = tmp + f', "{contents2[el][i+1]}"'
+        file = file + (f'\t["{el}"] = {{{tmp}}},\n')
+    file = file + "}\n"
+    file = file + "return {\n"
+    file = file + "\tactive = active,\n"
+    file = file + "\tdeprecated = deprecated,\n"
+    file = file + "}"
+    return file
+
+def write_iana_languages(contents, contents2):  
+    writeJSON("code_name", contents)  
+    writeJSON("code_name_dep", contents2)  
+    with open(str(Path(__file__).parent / ('./output/lua/iana_languages_translation.lua')), 'w', encoding='utf-8') as f:
+        f.write(generate_iana_languages(contents, contents2))
+
+
+def generate_articles(contents, contents2, contents3):
+    file = "\t-- For active\n"
+    for el in list(contents.keys()):
+        tmp = f'"{contents[el][0]}"'
+        for i in range(len(contents[el])-1):
+            tmp = tmp + f', "{contents[el][i+1]}"'
+        file = file + (f'\t["{el}"] = {{{tmp}}},\n')
+    file = file + "\n\n\n"
+
+    file = file + "\t-- For deprecated\n"
+    for el in list(contents2.keys()):
+        tmp = f'"{contents2[el][0]}"'
+        for i in range(len(contents2[el])-1):
+            tmp = tmp + f', "{contents2[el][i+1]}"'
+        file = file + (f'\t["{el}"] = {{{tmp}}},\n')
+    file = file + "\n\n\n"
+
+    file = file + "\t-- For complex\n"
+    for el in list(contents3.keys()):
+        tmp = f'"{contents3[el][0]}"'
+        for i in range(len(contents3[el])-1):
+            tmp = tmp + f', "{contents3[el][i+1]}"'
+        file = file + (f'\t["{el}"] = {{{tmp}}},\n')
+    return file
+
+def write_articles(contents, contents2, contents3):  
+    writeJSON("code_article", contents)  
+    writeJSON("code_article_dep", contents2)  
+    writeJSON("ietf_article", contents3)  
+    with open(str(Path(__file__).parent / ('./output/lua/articles.lua')), 'w', encoding='utf-8') as f:
+        f.write(generate_articles(contents, contents2, contents3))
 
 def buscarCoincidencia(clave, contenido):
     count = 0
@@ -137,13 +210,11 @@ print('')
 print('Escribiendo datos...')
 if not os.path.exists(str(Path(__file__).parent / './output/')):
     os.mkdir(str(Path(__file__).parent / './output/'))
-if not os.path.exists(str(Path(__file__).parent / './output/json/')):
+if output[0] and not os.path.exists(str(Path(__file__).parent / './output/json/')):
     os.mkdir(str(Path(__file__).parent / './output/json/'))
-if not os.path.exists(str(Path(__file__).parent / './output/lua/')):
+if output[1] and not os.path.exists(str(Path(__file__).parent / './output/lua/')):
     os.mkdir(str(Path(__file__).parent / './output/lua/'))
-write('code_name', code_name)
-write('code_article', code_article)
-write('code_name_dep', code_name_dep)
-write('code_article_dep', code_article_dep)
-write('ietf_name', ietf_name)
-write('ietf_article', ietf_article)
+
+write_iana_languages(code_name, code_name_dep) 
+write_articles(code_article, code_article_dep, ietf_article)
+write('override', ietf_name)

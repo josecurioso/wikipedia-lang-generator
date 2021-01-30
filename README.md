@@ -2,10 +2,10 @@
 Colección de scripts de python para generar las tablas de datos utilizadas en [Módulo:Lang](https://es.wikipedia.org/wiki/Módulo:Lang)
 ## Archivos generados
 Se generan los siguientes listados:
-* `<código ISO639> - <nombre>` Para los activos y los obsoletos
-* `<código ISO639> - <artículo>` Para los activos y los obsoletos
-* `<código IETF> - <nombre>` Para los que no tienen código simple
-* `<código IETF> - <artículo>` Para los que no tienen código simple
+* `<código ISO639> - <nombre>` Para los activos y los obsoletos. Archivo: `output/lua/iana_languages_translation.lua`
+* `<código ISO639> - <artículo>` Para los activos y los obsoletos. Archivo: `output/lua/articles.lua`
+* `<código IETF> - <nombre>` Para los que no tienen código simple. Archivo: `output/lua/override.lua`
+* `<código IETF> - <artículo>` Para los que no tienen código simple. Archivo: `output/lua/articles.lua`
 
 ## Fuentes
 Se utilizan como fuentes de información:
