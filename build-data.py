@@ -68,10 +68,16 @@ def generate_iana_languages(contents, contents2):
     file = file + "}"
     return file
 
-def write_iana_languages(contents, contents2):  
+def write_iana_languages_translation(contents, contents2):  
     writeJSON("code_name", contents)  
     writeJSON("code_name_dep", contents2)  
     with open(str(Path(__file__).parent / ('./output/lua/iana_languages_translation.lua')), 'w', encoding='utf-8') as f:
+        f.write(generate_iana_languages(contents, contents2))
+
+def write_iana_languages(contents, contents2):  
+    writeJSON("code_name_en", contents)  
+    writeJSON("code_name_en_dep", contents2)  
+    with open(str(Path(__file__).parent / ('./output/lua/iana_languages.lua')), 'w', encoding='utf-8') as f:
         f.write(generate_iana_languages(contents, contents2))
 
 
@@ -206,6 +212,16 @@ for el in dataIETF:
         if(tmp != "not found"):
             ietf_article[code] = [tmp]
 
+print('Limpiando originales...')
+for el in list(code_name.keys()):
+    if el in list(engData.keys()):
+        engData.pop(el)
+
+for el in list(code_name_dep.keys()):
+    if el in list(engDepData.keys()):
+        engDepData.pop(el)
+
+
 print('')
 print('Escribiendo datos...')
 if not os.path.exists(str(Path(__file__).parent / './output/')):
@@ -215,6 +231,7 @@ if output[0] and not os.path.exists(str(Path(__file__).parent / './output/json/'
 if output[1] and not os.path.exists(str(Path(__file__).parent / './output/lua/')):
     os.mkdir(str(Path(__file__).parent / './output/lua/'))
 
-write_iana_languages(code_name, code_name_dep) 
+write_iana_languages_translation(code_name, code_name_dep) 
+write_iana_languages(engData, engDepData)
 write_articles(code_article, code_article_dep, ietf_article)
 write('override', ietf_name)

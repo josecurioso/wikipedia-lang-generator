@@ -44,4 +44,5 @@ GROUP BY ?item ?label_es ?label_en ?article_es ?article_en
 * El [registro de sub-etiquetas del IANA](https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry).
 * Un listado de traducciones al español compilado manualmente.
 ## Uso
+Antes de generar el archivo introducir los datos de [:en:Module:Language/data/iana languages](https://en.wikipedia.org/wiki/Module:Language/data/iana_languages) en `eng.json` y `eng_dep.json` respectivamente. 
 Para generar el archivo de nombres basta con ejecutar el `run.py`, automáticamente se hace la query a wikidata, se procesan los datos y se generan los archivos.
