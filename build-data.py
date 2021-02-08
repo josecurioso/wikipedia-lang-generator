@@ -199,7 +199,7 @@ print('     Generando ietf_name + ietf_article...')
 for el in dataIETF:
     code = el["wdCodes"]["IETF"][0].lower()
 
-    name = extractName(el, True)
+    name = extractName(el) ##Pensar si activar o no el fallback extractName(el, True)
     if(name != "not found" and not (code in vetados)):
         ietf_name[code] = name
         tmp = extractArticle(el, ietf_name[code][0])
