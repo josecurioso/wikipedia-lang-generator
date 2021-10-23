@@ -87,6 +87,7 @@ def processEnCode(code):
     #Data from Module:Lang/data
     obj["enLang_Code"] = code
     obj["enLang_LangNames"] = enLang[code]
+    obj["deprecated"] = False
     enLang.pop(code, None)
 
     #Data from Spanish Plantilla:Lang and Spanish Wiktionary manually merged
@@ -102,6 +103,7 @@ def processEnDepCode(code):
     #Data from Module:Lang/data
     obj["enLang_Code"] = code
     obj["enLang_LangNames"] = enLangDep[code]
+    obj["deprecated"] = True
     enLangDep.pop(code, None)
 
     #Data from Spanish Plantilla:Lang and Spanish Wiktionary manually merged
