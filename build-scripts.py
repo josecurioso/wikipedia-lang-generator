@@ -122,6 +122,7 @@ result = requests.get(url, params = {'format': 'json', 'query': query})
 print('Limpiando datos...')
 data = list(map(clean, result.json()['results']['bindings']))
 
+"""
 #Seleccionando etiquetas
 print('Seleccionando etiquetas...')
 for el in data:
@@ -139,6 +140,26 @@ for el in data:
     elif("articleEn" in list(el.keys())):
         #print(el["code"])
         output_english[el["code"]] = [el["articleEn"]]
+"""
+
+#Seleccionando etiquetas
+print('Seleccionando etiquetas...')
+for el in data:
+    if(el["code"] in list(engData.keys())): #Solo generar elementos contenidos en los scripts publicados por IANA (eliminar los de uso privado Qxxx)
+        if(el["code"] in list(espData.keys())):
+            output_spanish[el["code"]] = espData[el["code"]]
+        if("label_es" in list(el.keys())):
+            output_spanish[el["code"]] = [cleanString(el["label_es"])]
+        elif("articleEs" in list(el.keys())):
+            output_spanish[el["code"]] = [cleanString(el["articleEs"])]
+        elif(el["code"] in list(engData.keys())):
+            output_english[el["code"]] = engData[el["code"]]
+        elif("label_en" in list(el.keys())):
+            #print(el["code"])
+            output_english[el["code"]] = [el["label_en"]]
+        elif("articleEn" in list(el.keys())):
+            #print(el["code"])
+            output_english[el["code"]] = [el["articleEn"]]
 
 
 print('Escribiendo archivo...')
